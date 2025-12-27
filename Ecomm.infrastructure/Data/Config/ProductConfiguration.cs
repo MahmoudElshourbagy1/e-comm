@@ -20,7 +20,7 @@ namespace Ecomm.infrastructure.Data.Config
                 .IsRequired()
                 .HasMaxLength(500);
             builder
-                .Property(x => x.Price)
+                .Property(x => x.NewPrice)
                 .IsRequired()
                 .HasColumnType("decimal(18,2)");
             builder
@@ -30,7 +30,7 @@ namespace Ecomm.infrastructure.Data.Config
                         Id = 1,
                         Name = "Sample Product 1",
                         Description = "This is a sample product description.",
-                        Price = 19.99m,
+                        NewPrice = 19.99m,
                         CategoryId = 1
                     },
                     new Product
@@ -38,9 +38,17 @@ namespace Ecomm.infrastructure.Data.Config
                         Id = 2,
                         Name = "Sample Product 2",
                         Description = "This is another sample product description.",
-                        Price = 29.99m,
+                        NewPrice = 29.99m,
                         CategoryId = 2
-                    }
+                    },
+                     new Product
+                     {
+                         Id = 3,
+                         Name = "Sample Product 3",
+                         Description = "This is another sample product description.",
+                         NewPrice = 35.99m,
+                         CategoryId = 3
+                     }
                 );
         }
     }

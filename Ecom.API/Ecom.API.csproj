@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.1">
       <PrivateAssets>all</PrivateAssets>
@@ -18,12 +20,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\Ecom.Core\Ecom.Core.csproj" />
+    <ProjectReference Include="..\Ecomm.infrastructure\Ecomm.infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Ecom.Core\Ecom.Core.csproj" />
-    <ProjectReference Include="..\Ecomm.infrastructure\Ecomm.infrastructure.csproj" />
+    <Folder Include="wwwroot\Images\" />
   </ItemGroup>
 
 </Project>

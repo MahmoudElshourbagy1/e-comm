@@ -1,10 +1,14 @@
 ﻿
 using Ecom.Core.Interfaces;
+using Ecom.Core.Services;
 using Ecomm.infrastructure.Data;
 using Ecomm.infrastructure.Repositries;
-using Microsoft.Extensions.DependencyInjection;
+using Ecomm.infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -24,6 +28,9 @@ namespace Ecomm.infrastructure
             //services.AddScoped<IProductRepositry, ProductRepositry>();
             //services.AddScoped<IPhotoRepositry, PhotoRepositry>();
             //apply unit of work
+            services.AddScoped<IProductRepositry, ProductRepositry>();
+            services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(),"wwwroot")));
+            services.AddScoped<IImageManagementService, ImageManagementService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             // applay DbContext
             services.AddDbContext<AppDbContext>(op =>

@@ -59,7 +59,7 @@ namespace Ecomm.infrastructure.Repositries
             {
                 query = query.Include(item);
             }
-            var entity =await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
+            var entity = await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
             return entity;
         }
 

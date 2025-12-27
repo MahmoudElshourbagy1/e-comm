@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ecomm.infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251223150635_init")]
+    [Migration("20251224160514_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -74,7 +74,7 @@ namespace Ecomm.infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ImageNamer")
+                    b.Property<string>("ImageName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -86,6 +86,26 @@ namespace Ecomm.infrastructure.Data.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("Photos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ImageName = "product-1.jpg",
+                            ProductId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ImageName = "product-2.jpg",
+                            ProductId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ImageName = "product-3.jpg",
+                            ProductId = 3
+                        });
                 });
 
             modelBuilder.Entity("Ecom.Core.Entites.Product.Product", b =>
@@ -134,6 +154,14 @@ namespace Ecomm.infrastructure.Data.Migrations
                             Description = "This is another sample product description.",
                             Name = "Sample Product 2",
                             Price = 29.99m
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CategoryId = 3,
+                            Description = "This is another sample product description.",
+                            Name = "Sample Product 3",
+                            Price = 35.99m
                         });
                 });
 
@@ -151,17 +179,12 @@ namespace Ecomm.infrastructure.Data.Migrations
             modelBuilder.Entity("Ecom.Core.Entites.Product.Product", b =>
                 {
                     b.HasOne("Ecom.Core.Entites.Product.Category", "Category")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("Ecom.Core.Entites.Product.Category", b =>
-                {
-                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Ecom.Core.Entites.Product.Product", b =>

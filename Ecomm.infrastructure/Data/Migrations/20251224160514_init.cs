@@ -54,7 +54,7 @@ namespace Ecomm.infrastructure.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ImageNamer = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -84,7 +84,18 @@ namespace Ecomm.infrastructure.Data.Migrations
                 values: new object[,]
                 {
                     { 1, 1, "This is a sample product description.", "Sample Product 1", 19.99m },
-                    { 2, 2, "This is another sample product description.", "Sample Product 2", 29.99m }
+                    { 2, 2, "This is another sample product description.", "Sample Product 2", 29.99m },
+                    { 3, 3, "This is another sample product description.", "Sample Product 3", 35.99m }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Photos",
+                columns: new[] { "Id", "ImageName", "ProductId" },
+                values: new object[,]
+                {
+                    { 1, "product-1.jpg", 1 },
+                    { 2, "product-2.jpg", 2 },
+                    { 3, "product-3.jpg", 3 }
                 });
 
             migrationBuilder.CreateIndex(
