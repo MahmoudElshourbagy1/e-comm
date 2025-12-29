@@ -76,5 +76,20 @@ namespace Ecom.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+        [HttpDelete("Delete-Product/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var product = await work.productRepositry.GetByIdAsync(id,x=>x.Photos,x=>x.Category);
+                await work.productRepositry.DeleteAsync(product);
+
+                return Ok(new ResponseAPI(200));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
     }
 }

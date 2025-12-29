@@ -41,6 +41,17 @@ namespace Ecomm.infrastructure.Repositries
             return true;
         }
 
+        public async Task DeleteAsync(Product product)
+        {
+            var photos = await context.Photos.Where(p => p.ProductId == product.Id).ToListAsync();
+            foreach (var photo in photos)
+            {
+                imageManagementService.DeleteImageAsync(photo.ImageName);
+            }
+            context.Products.Remove(product);
+            await context.SaveChangesAsync();
+        }
+
         public async Task<bool> UpdateAsync(UpdateProductDTO updateProductDTO)
         {
             if (updateProductDTO == null) return false;
