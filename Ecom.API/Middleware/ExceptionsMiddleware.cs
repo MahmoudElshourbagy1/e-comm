@@ -10,7 +10,7 @@ namespace Ecom.API.Middleware
         private readonly RequestDelegate _next;
         private readonly IHostEnvironment _environment;
         private readonly  IMemoryCache _memoryCache;
-        private readonly TimeSpan _timeSpan = TimeSpan.FromSeconds(30);
+        private readonly TimeSpan _timeSpan = TimeSpan.FromSeconds(1);
 
         public ExceptionsMiddleware(RequestDelegate next, IHostEnvironment environment, IMemoryCache memoryCache)
         {
@@ -23,26 +23,33 @@ namespace Ecom.API.Middleware
             try
             {
                 ApplySecurity(context);
-                if (IsRequestAllowed(context) == false)
+
+                if (!IsRequestAllowed(context))
                 {
-                    context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
+                    context.Response.StatusCode = 429;
                     context.Response.ContentType = "application/json";
-                    var response = new ApiException((int)HttpStatusCode.TooManyRequests, "Too many request . please try agin later");
-                    
-                    await context.Response.WriteAsJsonAsync(response);
-                   
+
+                    await context.Response.WriteAsJsonAsync(
+                        new ApiException(429, "Too many requests, try again later")
+                    );
+                    return;
                 }
+
                 await _next(context);
             }
             catch (Exception ex)
             {
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                if (context.Response.HasStarted)
+                    throw;
+
+                context.Response.StatusCode = 500;
                 context.Response.ContentType = "application/json";
-                var response = _environment.IsDevelopment()?
-                    new ApiException((int)HttpStatusCode.InternalServerError, ex.Message,ex.StackTrace)
-                    : new ResponseAPI((int)HttpStatusCode.InternalServerError, ex.Message);
-                var Json = JsonSerializer.Serialize(response);
-               await context.Response.WriteAsync(Json);
+
+                var response = _environment.IsDevelopment()
+                    ? new ApiException(500, ex.Message, ex.StackTrace)
+                    : new ResponseAPI(500, "Internal Server Error");
+
+                await context.Response.WriteAsJsonAsync(response);
             }
         }
         private bool IsRequestAllowed(HttpContext context)
@@ -55,7 +62,7 @@ namespace Ecom.API.Middleware
             });
             if(dateNow - timesTamp < _timeSpan)
             {
-                if (count >= 8)
+                if (count >= 10)
                 {
                     return false;
                 }

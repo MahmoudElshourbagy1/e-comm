@@ -1,13 +1,14 @@
-﻿using Ecom.Core.DTO;
+﻿using AutoMapper;
+using Ecom.Core.DTO;
 using Ecom.Core.Entites.Product;
 using Ecom.Core.Interfaces;
+using Ecom.Core.Services;
+using Ecom.Core.Sharing;
 using Ecomm.infrastructure.Data;
-using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Ecom.Core.Services;
-using Microsoft.EntityFrameworkCore;
 
 namespace Ecomm.infrastructure.Repositries
 {
@@ -86,6 +87,41 @@ namespace Ecomm.infrastructure.Repositries
             await context.SaveChangesAsync();
             return true;
         }
-
+        public async Task<ReturnProductDTO> GetAllAsync(ProductParams productParams)
+        {
+            var query = context.Products.Include(m=>m.Category).Include(m=>m.Photos).AsNoTracking();
+            // filtering by Word
+            if(!string.IsNullOrEmpty(productParams.Search))
+            {
+                var searchWords =productParams.Search.Split(' ');
+                query = query.Where(m=>searchWords.All(word=>
+                m.Name.ToLower().Contains(word.ToLower())
+                ||m.Description.ToLower().Contains(word.ToLower())));
+            }
+            // filtering by category ID
+            if (productParams.CategoryId.HasValue)
+            {
+                query=query.Where(m=>m.CategoryId == productParams.CategoryId);
+            }
+            if(!string.IsNullOrEmpty(productParams.Sort))
+            {
+                query = productParams.Sort switch
+                {
+                    "PriceAce" => query.OrderBy(m => m.NewPrice),
+                    "PriceDce" => query.OrderByDescending(m => m.NewPrice),
+                    _ => query.OrderBy(m => m.Name),
+                };
+            }
+            else
+            {
+                query = query.OrderBy(m => m.Name);
+            }
+            ReturnProductDTO returnProductDTO = new ReturnProductDTO();
+            returnProductDTO.TotalCount=query.Count();
+            query = query.Skip((productParams.PageSize) * (productParams.PageNumber - 1)).Take(productParams.PageSize);
+            var list = await query.ToListAsync();
+            returnProductDTO.products = mapper.Map<List<ProductDTO>>(list);
+            return returnProductDTO;
+        } 
     }
 }

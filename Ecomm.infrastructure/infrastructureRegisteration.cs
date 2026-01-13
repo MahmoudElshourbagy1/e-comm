@@ -12,6 +12,7 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using StackExchange.Redis;
 
 namespace Ecomm.infrastructure
 {
@@ -27,10 +28,16 @@ namespace Ecomm.infrastructure
             //services.AddScoped<ICategoryRepositry, CategoryRepositry>();
             //services.AddScoped<IProductRepositry, ProductRepositry>();
             //services.AddScoped<IPhotoRepositry, PhotoRepositry>();
-            //apply unit of work
+            //apply Redis Cache
+            services.AddSingleton<IConnectionMultiplexer>(
+                i =>
+                { var config = ConfigurationOptions.Parse(configuration.GetConnectionString("Redis"), true);
+                    return ConnectionMultiplexer.Connect(config);});
             services.AddScoped<IProductRepositry, ProductRepositry>();
             services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(),"wwwroot")));
             services.AddScoped<IImageManagementService, ImageManagementService>();
+            services.AddScoped<ICustomerBasketRepository, CustomerBasketRepository>();
+            //apply unit of work
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             // applay DbContext
             services.AddDbContext<AppDbContext>(op =>
