@@ -23,6 +23,9 @@ namespace Ecomm.infrastructure.Data.Config
                 .Property(x => x.NewPrice)
                 .IsRequired()
                 .HasColumnType("decimal(18,2)");
+            builder.
+                Property(x => x.OldPrice).
+                HasColumnType("decimal(18,2)");
             builder
                 .HasData(
                     new Product

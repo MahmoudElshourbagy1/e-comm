@@ -1,4 +1,6 @@
-﻿using Ecom.Core.Entites.Product;
+﻿using Ecom.Core.Entites;
+using Ecom.Core.Entites.Product;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,7 +9,7 @@ using System.Text;
 
 namespace Ecomm.infrastructure.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<AppUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -16,6 +18,7 @@ namespace Ecomm.infrastructure.Data
         public virtual DbSet<Product> Products { get; set; }
 
         public virtual DbSet<Photo> Photos { get; set; }
+        public virtual DbSet<Address> Addresss { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
            base.OnModelCreating(modelBuilder); 
