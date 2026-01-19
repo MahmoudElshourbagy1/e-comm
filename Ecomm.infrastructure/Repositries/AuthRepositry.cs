@@ -4,8 +4,11 @@ using Ecom.Core.Entites;
 using Ecom.Core.Interfaces;
 using Ecom.Core.Services;
 using Ecom.Core.Sharing;
+using Ecomm.infrastructure.Data;
 using MailKit;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Web;
 
 namespace Ecomm.infrastructure.Repositries
@@ -16,13 +19,15 @@ namespace Ecomm.infrastructure.Repositries
         private readonly IEmailService emailService;
         private readonly SignInManager<AppUser> signInManager;
         private readonly IGenerateToken generateToken;
+        private readonly AppDbContext context;
 
-        public AuthRepositry(UserManager<AppUser> userManager, IEmailService emailService, SignInManager<AppUser> signInManager, IGenerateToken generateToken = null)
+        public AuthRepositry(UserManager<AppUser> userManager, IEmailService emailService, SignInManager<AppUser> signInManager, IGenerateToken generateToken, AppDbContext context)
         {
             this.userManager = userManager;
             this.emailService = emailService;
             this.signInManager = signInManager;
             this.generateToken = generateToken;
+            this.context = context;
         }
         public async Task<string> RegisterAsync(RegisterDTO registerDTO)
         {
@@ -61,28 +66,33 @@ namespace Ecomm.infrastructure.Repositries
                 );
             await emailService.sendEmail(reslut);
         }
-        public async Task<string> LoginAsync(LoginDTo loginDTo)
+        public async Task<(bool Succeeded, string Message)> LoginAsync(LoginDTo loginDTo)
         {
             if (loginDTo == null)
-            {
-                return null;
-            }
+                return (false, "Invalid data");
+
             var finduser = await userManager.FindByEmailAsync(loginDTo.Email);
+            if (finduser == null)
+                return (false, "Invalid email or password");
+
             if (!finduser.EmailConfirmed)
             {
                 string token = await userManager.GenerateEmailConfirmationTokenAsync(finduser);
-                await SendEmail(finduser.Email, token, "active", "ActiveEmail", "Plase active your email , click on button to active");
-                return "please confirem your email frist , we have send activat to your email";
-
+                await SendEmail(finduser.Email, token, "active", "ActiveEmail", "Please activate your email");
+                return (false, "Please confirm your email first. We have sent an activation email.");
             }
-            var reslut = await signInManager.CheckPasswordSignInAsync(finduser, loginDTo.Password, true);
-            if (reslut.Succeeded)
+
+            var result = await signInManager.CheckPasswordSignInAsync(finduser, loginDTo.Password, true);
+
+            if (result.Succeeded)
             {
-                return generateToken.GetAndCreateToken(finduser);
+                var tokenJwt = generateToken.GetAndCreateToken(finduser);
+                return (true, tokenJwt);
             }
 
-            return "please check your email and passowrd , something went worng";
+            return (false, "Invalid email or password");
         }
+
         public async Task<bool> SendEmailForForgetPassowrd(string email)
         {
             var findUser = await userManager.FindByEmailAsync(email);
@@ -129,6 +139,43 @@ namespace Ecomm.infrastructure.Repositries
             var token = await userManager.GenerateEmailConfirmationTokenAsync(findUser);
             await SendEmail(findUser.Email, token, "active", "ActiveEmail", "Plase active your email , click on button to active");
             return false;
+        }
+
+        public async Task<bool> UpdateAddress(string email, Address address)
+        {
+            if (string.IsNullOrEmpty(email))
+                return false;
+
+            var findUser = await userManager.FindByEmailAsync(email);
+            if (findUser is null)
+                return false;
+
+            var myAddress = await context.Addresss
+      .AsNoTracking()
+      .FirstOrDefaultAsync(m => m.AppUserId == findUser.Id);
+
+            address.AppUserId = findUser.Id;
+
+            if (myAddress == null)
+            {
+                address.AppUserId = findUser.Id;
+                await context.Addresss.AddAsync(address);
+            }
+            else
+            {
+                address.Id = myAddress.Id;
+                context.Addresss.Update(address);
+            }
+
+            await context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<Address> getUserAddress(string email)
+        {
+            var User =await userManager.FindByEmailAsync(email);
+            var address = await context.Addresss.FirstOrDefaultAsync(m => m.AppUserId == User.Id);
+            return address;
         }
     }
 }

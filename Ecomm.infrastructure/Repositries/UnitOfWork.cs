@@ -35,7 +35,7 @@ namespace Ecomm.infrastructure.Repositries
             categoryRepositry = new CategoryRepositry(_context);
             photoRepositry = new PhotoRepositry(_context);
             customerBasket = new CustomerBasketRepository(redis);
-            Auth = new AuthRepositry(userManager, emailService, signInManager, token);
+            Auth = new AuthRepositry(userManager, emailService, signInManager, token,context);
           
         }
         public IProductRepositry productRepositry { get; }

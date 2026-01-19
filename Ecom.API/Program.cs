@@ -36,6 +36,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 app.UseStaticFiles();
+app.UseRouting();
 app.UseCors("CORSPolicy");
 app.UseMiddleware<ExceptionsMiddleware>();
 app.UseAuthentication();

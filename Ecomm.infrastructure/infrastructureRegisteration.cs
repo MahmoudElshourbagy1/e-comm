@@ -47,6 +47,8 @@ namespace Ecomm.infrastructure
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             //register email sender
             services.AddScoped<IEmailService, EmailService>();
+            //register Iorder service
+            services.AddScoped<IOrderService, OrderService>();
             //register token
             services.AddScoped<IGenerateToken, GenerateToken>();
            
