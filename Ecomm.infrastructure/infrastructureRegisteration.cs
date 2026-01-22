@@ -49,8 +49,11 @@ namespace Ecomm.infrastructure
             services.AddScoped<IEmailService, EmailService>();
             //register Iorder service
             services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IRating, RatingRepositry>();
             //register token
             services.AddScoped<IGenerateToken, GenerateToken>();
+            //register payment service
+            services.AddScoped<IPaymentService,PaymentService>();
            
             // applay DbContext
             services.AddDbContext<AppDbContext>(op =>

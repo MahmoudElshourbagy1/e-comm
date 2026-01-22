@@ -1,8 +1,11 @@
 ﻿using Ecom.Core.DTO;
+using Ecom.Core.Entites.Order;
 using Ecom.Core.Services;
+using Ecomm.infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace Ecom.API.Controllers
@@ -13,10 +16,12 @@ namespace Ecom.API.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly AppDbContext _context;
 
-        public OrdersController(IOrderService orderService)
+        public OrdersController(IOrderService orderService, AppDbContext context)
         {
             _orderService = orderService;
+            _context = context;
         }
         [HttpPost("create-order")]
         public async Task<IActionResult> create(OrderDTO orderDTO) {
@@ -40,5 +45,21 @@ namespace Ecom.API.Controllers
         }
         [HttpGet("get-delivery")]
         public async Task<IActionResult> getDelivery() => Ok(await _orderService.GetDeliveryMethodAsync());
+        [HttpPatch("update-status/{id}")]
+        public async Task<ActionResult> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusDTO statusDto)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null) return NotFound("Order not found");
+
+            // محاولة تحويل string للـ enum بأمان
+            if (!Enum.TryParse<Status>(statusDto.Status, ignoreCase: true, out var newStatus))
+                return BadRequest("Invalid status value");
+
+            order.status = newStatus;
+            await _context.SaveChangesAsync();
+
+            return Ok(order);
+        }
+
     }
 }

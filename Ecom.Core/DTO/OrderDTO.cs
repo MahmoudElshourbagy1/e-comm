@@ -6,7 +6,8 @@ namespace Ecom.Core.DTO
 {
     public record OrderDTO
     {
-        public int DeliveryMethodId { get; set; }
+        
+        public int? DeliveryMethodId { get; set; }
         public string basketId { get; set; }
         public ShipAddressDTO shipAddress { get; set; }
     }

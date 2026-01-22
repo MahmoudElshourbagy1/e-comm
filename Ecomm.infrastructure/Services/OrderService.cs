@@ -5,6 +5,7 @@ using Ecom.Core.Interfaces;
 using Ecom.Core.Services;
 using Ecomm.infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,11 +17,13 @@ namespace Ecomm.infrastructure.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        public OrderService(IUnitOfWork unitOfWork, AppDbContext context, IMapper mapper)
+        private readonly IPaymentService _paymentService;
+        public OrderService(IUnitOfWork unitOfWork, AppDbContext context, IMapper mapper, IPaymentService paymentService)
         {
             _unitOfWork = unitOfWork;
             _context = context;
             _mapper = mapper;
+            _paymentService = paymentService;
         }
 
         public async Task<Orders> CreateOrdersAsync(OrderDTO orderDTO, string BuyerEmail)
@@ -35,7 +38,13 @@ namespace Ecomm.infrastructure.Services
             var deliverMethod=await _context.DeliveryMethods.FirstOrDefaultAsync(m=>m.Id==orderDTO.DeliveryMethodId);
             var subTotal = orderItems.Sum(m=>m.Price * m.Quntity);
             var ship = _mapper.Map<ShippingAddress>(orderDTO.shipAddress);
-            var order = new Orders(BuyerEmail, subTotal, ship, deliverMethod, orderItems);
+            var ExisitOrder = await _context.Orders.Where(m => m.PaymentIntentId == basket.PaymentIntentId).FirstOrDefaultAsync();
+            if (ExisitOrder is not null)
+            {
+                _context.Orders.Remove(ExisitOrder);
+                await _paymentService.CreateOrUpdatePaymentAsync(basket.PaymentIntentId, deliverMethod.Id);
+            }
+            var order = new Orders(BuyerEmail, subTotal, ship, deliverMethod, orderItems ,basket.PaymentIntentId);
             await _context.Orders.AddAsync(order);
             await _context.SaveChangesAsync();
             await _unitOfWork.customerBasket.DeleteBasketAsync(orderDTO.basketId);

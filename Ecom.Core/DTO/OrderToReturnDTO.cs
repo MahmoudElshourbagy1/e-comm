@@ -26,4 +26,8 @@ namespace Ecom.Core.DTO
         public decimal Price { get; set; }
         public int Quntity { get; set; }
     }
+    public record UpdateOrderStatusDTO
+    {
+        public string Status { get; set; }
+    }
 }

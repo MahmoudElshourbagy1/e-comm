@@ -173,7 +173,7 @@ namespace Ecomm.infrastructure.Repositries
 
         public async Task<Address> getUserAddress(string email)
         {
-            var User =await userManager.FindByEmailAsync(email);
+            var User =await userManager.FindByEmailAsync(email!);
             var address = await context.Addresss.FirstOrDefaultAsync(m => m.AppUserId == User.Id);
             return address;
         }

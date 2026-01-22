@@ -3,6 +3,7 @@ using Ecom.API.Helper;
 using Ecom.Core.DTO;
 using Ecom.Core.Entites;
 using Ecom.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
@@ -115,6 +116,32 @@ namespace Ecom.API.Controllers
             var result = mapper.Map<ShipAddressDTO>(address);
 
             return Ok(result);
+        }
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("Token", new CookieOptions
+            {
+                Secure = true,
+                HttpOnly = true,
+                Domain = "localhost",
+                SameSite = SameSiteMode.Strict,
+                IsEssential = true
+            });
+
+            return Ok(new ResponseAPI(200, "Logged out successfully"));
+        }
+        [Authorize]
+        [HttpGet("get-user-name")]
+        public IActionResult GetUserName()
+        {
+            return Ok(new ResponseAPI(200, User.Identity.Name));
+        }
+        [HttpGet("IsUserAuth")]
+        public async Task<IActionResult> IsUserAuth()
+        {
+
+            return User.Identity.IsAuthenticated ? Ok() : BadRequest();
         }
     }
 }

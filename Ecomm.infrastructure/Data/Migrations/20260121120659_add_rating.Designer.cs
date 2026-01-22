@@ -4,6 +4,7 @@ using Ecomm.infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ecomm.infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260121120659_add_rating")]
+    partial class add_rating
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -360,9 +363,6 @@ namespace Ecomm.infrastructure.Data.Migrations
                     b.Property<decimal>("OldPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<double>("Rating")
-                        .HasColumnType("float");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
@@ -377,8 +377,7 @@ namespace Ecomm.infrastructure.Data.Migrations
                             Description = "This is a sample product description.",
                             Name = "Sample Product 1",
                             NewPrice = 19.99m,
-                            OldPrice = 0m,
-                            Rating = 0.0
+                            OldPrice = 0m
                         },
                         new
                         {
@@ -387,8 +386,7 @@ namespace Ecomm.infrastructure.Data.Migrations
                             Description = "This is another sample product description.",
                             Name = "Sample Product 2",
                             NewPrice = 29.99m,
-                            OldPrice = 0m,
-                            Rating = 0.0
+                            OldPrice = 0m
                         },
                         new
                         {
@@ -397,8 +395,7 @@ namespace Ecomm.infrastructure.Data.Migrations
                             Description = "This is another sample product description.",
                             Name = "Sample Product 3",
                             NewPrice = 35.99m,
-                            OldPrice = 0m,
-                            Rating = 0.0
+                            OldPrice = 0m
                         });
                 });
 
